@@ -2,7 +2,7 @@
 %define plugin	dvdselect
 %define name	vdr-plugin-%plugin
 %define version	0.8
-%define rel	10
+%define rel	11
 
 Summary:	VDR plugin: virtual dvd-selector
 Name:		%name
