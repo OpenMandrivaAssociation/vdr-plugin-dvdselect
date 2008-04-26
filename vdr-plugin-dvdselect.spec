@@ -2,7 +2,7 @@
 %define plugin	dvdselect
 %define name	vdr-plugin-%plugin
 %define version	0.8
-%define rel	13
+%define rel	14
 
 Summary:	VDR plugin: virtual dvd-selector
 Name:		%name
@@ -12,8 +12,10 @@ Group:		Video
 License:	GPL
 URL:		http://www.vdr-wiki.de/wiki/index.php/Dvdselect-plugin
 Source:		http://www.vdr-wiki.de/vdr/vdr-dvdselect/vdr-%plugin-%version.tar.bz2
+Patch0:		dvdselect-default-paths.patch
+Patch1:		dvdselect-0.8-i18n-1.6.patch
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	vdr-devel >= 1.4.1-6
+BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
 %description
@@ -22,6 +24,9 @@ Doing this, you are able to play these dvds using the dvdplugin.
 
 %prep
 %setup -q -n %plugin-%version
+%patch0 -p1
+%patch1 -p1
+%vdr_plugin_prep
 rm -f examples/*~
 
 %build
