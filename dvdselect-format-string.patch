@@ -1,0 +1,62 @@
+Index: dvdselect-0.8/dvdselect.c
+===================================================================
+--- dvdselect-0.8/dvdselect.c
++++ dvdselect-0.8/dvdselect.c	2009-03-21 10:34:25.000000000 +0200
+@@ -113,7 +113,7 @@
+   asprintf(&orgDevice, "%s",DVDSelectSetup.NameOrgDevice);
+   asprintf(&cmd, "ln -nfs '%s' '%s' 2> /dev/null", orgDevice, device);
+ 
+-  esyslog(cmd);
++  esyslog("%s", cmd);
+   system(cmd);
+ }
+ 
+Index: dvdselect-0.8/menu.c
+===================================================================
+--- dvdselect-0.8/menu.c
++++ dvdselect-0.8/menu.c	2009-03-21 10:37:24.000000000 +0200
+@@ -95,7 +95,7 @@
+   cMenuDVDItem *item = (cMenuDVDItem*)Get(Current());
+   if (item) {
+     if (Interface->Confirm(tr("Delete DVD?"))) {
+-      esyslog(cmd);
++      esyslog("%s", cmd);
+       asprintf(&cmd, RMCMD, item->dateiname);
+       rc=system(cmd);
+     }
+@@ -140,7 +140,7 @@
+     */
+     
+     asprintf(&cmd, MOUNTCMD, item->dateiname, device);
+-    esyslog(cmd);
++    esyslog("%s", cmd);
+     rc=system(cmd);
+     //Debugausgabe:
+     //	Interface->Status(cmd);
+@@ -185,7 +185,7 @@
+     */
+     
+     asprintf(&cmd, RESETCMD,orgDevice, device);
+-    esyslog(cmd);
++    esyslog("%s", cmd);
+     rc=system(cmd);
+     //Debugausgabe:
+     //	Interface->Status(cmd);
+@@ -234,7 +234,7 @@
+   if (item) {
+     if (Interface->Confirm(tr("Burn DVD?"))) {
+     asprintf(&cmd, SCRIPT_DVDWRITE_CMD,DVDSelectSetup.DVDWriteScript,item->dateiname);
+-    esyslog(cmd);
++    esyslog("%s", cmd);
+     rc=system(cmd);
+     }
+   }
+@@ -289,7 +289,7 @@
+       
+     case kRed:
+       asprintf(&cmd, SCRIPT_DVDREAD_CMD,DVDSelectSetup.DVDReadScript,DVDSelectSetup.DVDOutputDir,name,DVDSelectSetup.NameOrgDevice);
+-      esyslog(cmd);
++      esyslog("%s", cmd);
+       rc=system(cmd);
+       return osEnd;
+     default:

@@ -1,0 +1,955 @@
+
+This is a semi-automatically created i18n adaptation patch and may contain
+errors (such as missing translations). This should only be used as a
+temporary measure until the upstream plugin maintainer fixes the plugin
+properly according to the instructions in i18n-to-gettext.pl.
+
+Created for Mandriva Linux packaging by Anssi Hannula <anssi@mandriva.org>.
+
+
+Index: dvdselect-0.8/Makefile
+===================================================================
+--- dvdselect-0.8/Makefile
++++ dvdselect-0.8/Makefile	2008-04-22 20:28:34.000000000 +0300
+@@ -46,7 +46,7 @@
+ 
+ ### The object files (add further files here):
+ 
+-OBJS = $(PLUGIN).o  menu.o menuitem.o i18n.o config.o
++OBJS = $(PLUGIN).o  menu.o menuitem.o  config.o
+ 
+ ### Implicit rules:
+ 
+@@ -62,9 +62,34 @@
+ 
+ -include $(DEPFILE)
+ 
++### Internationalization (I18N):
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, $(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.[ch] *.[ch]xx *.cc *.[ch]pp *.hh)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<http://qa.mandriva.com/>' -o $@ $^
++
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Nmsgs)
++
+ ### Targets:
+ 
+-all: libvdr-$(PLUGIN).so
++all: libvdr-$(PLUGIN).so i18n
+ 
+ libvdr-$(PLUGIN).so: $(OBJS)
+ 	$(CXX) $(CXXFLAGS) -shared $(OBJS) -o $@
+@@ -79,5 +104,6 @@
+ 	@echo Distribution package created as $(PACKAGE).tgz
+ 
+ clean:
++	@-rm -f $(PODIR)/*.mo $(PODIR)/*.pot
+ 	@-rm -f $(OBJS) $(DEPFILE) *.so *.tgz core* *~ *.o
+ 
+Index: dvdselect-0.8/config.c
+===================================================================
+--- dvdselect-0.8/config.c
++++ dvdselect-0.8/config.c	2008-04-22 20:28:34.000000000 +0300
+@@ -12,7 +12,7 @@
+ #include <vdr/menuitems.h>
+ 
+ #include "config.h"
+-#include "i18n.h"
++
+ 
+ cDVDSelectSetup DVDSelectSetup;
+ 
+Index: dvdselect-0.8/dvdselect.c
+===================================================================
+--- dvdselect-0.8/dvdselect.c
++++ dvdselect-0.8/dvdselect.c	2008-04-22 20:28:34.000000000 +0300
+@@ -9,13 +9,13 @@
+ #include <stdlib.h>
+ #include <vdr/interface.h>
+ #include <vdr/plugin.h>
+-#include "i18n.h"
++
+ #include "menuitem.h"
+ #include "menu.h"
+ #include "config.h"
+ 
+ static const char *VERSION       = "0.8";
+-static const char *DESCRIPTION   = "virtual dvd-selector";
++static const char *DESCRIPTION   = trNOOP("virtual dvd-selector");
+ static const char *MAINMENUENTRY = "DVDSelect";
+ 
+ class cPluginDVDSelect : public cPlugin {
+@@ -69,7 +69,7 @@
+ bool cPluginDVDSelect::Initialize(void)
+ {
+   // Initialize any background activities the plugin shall perform.
+-  RegisterI18n(Phrases);
++  
+   Reset();
+   return true;
+ }
+Index: dvdselect-0.8/i18n.c
+===================================================================
+--- dvdselect-0.8/i18n.c
++++ dvdselect-0.8/i18n.c	2008-04-22 20:28:34.000000000 +0300
+@@ -1,388 +0,0 @@
+-/*
+- * i18n.c: Internationalization
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.c 1.3 2002/06/23 13:05:59 kls Exp $
+- */
+-
+-#include "i18n.h"
+-
+-const tI18nPhrase Phrases[] = {
+-
+-  { "virtual dvd-selector",
+-    "virtueller DVD-Wechsler",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "DVD-SÈlecteur virtuel",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "≤ÿ‡‚„–€Ï›ÎŸ DVD Á’Ÿ›‘÷’‡",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "DVD-plugin not found!",
+-    "DVD-Plugin nicht gefunden!",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Plugin DVD non trouvÈ",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "DVD-‹ﬁ‘„€Ï ›’ ›–Ÿ‘’›!",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "DVDSelect",
+-    "DVD Wechsler",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Images DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "DVD Á’Ÿ›‘÷’‡",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "dvddevice",
+-    "DVD Ger‰t",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "PÈriphÈrique DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "DVD-ø‡ﬁÿ”‡Î“–‚’€Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "dvdorgdevice",
+-    "org. DVD Ger‰t",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "PÈriphÈrique DVD original",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "ﬁ‡ÿ”. DVD-ø‡ﬁÿ”‡Î“–‚’€Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "imagedir",
+-    "ISO-Verzeichnis",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "RÈpertoire ISO",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "ø–ﬂ⁄– ISO",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "delete",
+-    "lˆschen",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Supprimer",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "¡‚’‡’‚Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "start",
+-    "starten",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "DÈmarrer",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "¡‚–‡‚",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "reset",
+-    "reset",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Remise ‡ zÈro",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "reset",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "mount",
+-    "anh‰ngen",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Monter",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "ﬂﬁ‘⁄€ÓÁÿ‚Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "dvdreadscript",
+-    "Einlesen",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Script de lecture DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "æ‚⁄‡Î‚Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "dvdwritescript",
+-    "Schreiben",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Script de Gravure DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "∑–ﬂÿ·Ï",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "DVDOutputDir",
+-    "DVD Verzeichnis",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "RÈpertoire de destination DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "ø–ﬂ⁄– DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "dvd-name",
+-    "DVD-Name",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Nom-DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Ω–◊“–›ÿ’ DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "Delete DVD?",
+-    "DVD lˆschen?",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Supprimer le DVD?",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "¡‚’‡’‚Ï DVD?",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "read dvd",
+-    "DVD einlesen",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Lire le DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "¡Áÿ‚–‚Ï DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { "new_dvd",
+-    "neue_DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Nouveau_DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "",
+-    "Ωﬁ“ÎŸ DVD",
+-    "",
+-    "",
+-    "",
+-    "",
+-  },
+-  { NULL }
+-  };
+Index: dvdselect-0.8/i18n.h
+===================================================================
+--- dvdselect-0.8/i18n.h
++++ dvdselect-0.8/i18n.h	2008-04-22 20:28:34.000000000 +0300
+@@ -1,16 +0,0 @@
+-/*
+- * i18n.h: Internationalization
+- *
+- * See the README file for copyright information and how to reach the author.
+- *
+- * $Id: i18n.h 1.2 2002/05/11 14:48:16 kls Exp $
+- */
+-
+-#ifndef _I18N__H
+-#define _I18N__H
+-
+-#include <vdr/i18n.h>
+-
+-extern const tI18nPhrase Phrases[];
+-
+-#endif //_I18N__H
+Index: dvdselect-0.8/menu.c
+===================================================================
+--- dvdselect-0.8/menu.c
++++ dvdselect-0.8/menu.c	2008-04-22 20:29:20.000000000 +0300
+@@ -218,7 +218,7 @@
+ 	}
+       }
+       else{
+-	Skins.Message(mtError, "DVD-plugin not found!");
++	Skins.Message(mtError, tr("DVD-plugin not found!"));
+ 	break;
+       }
+   }
+Index: dvdselect-0.8/po/de_DE.po
+===================================================================
+--- dvdselect-0.8/po/de_DE.po
++++ dvdselect-0.8/po/de_DE.po	2008-04-22 20:28:33.000000000 +0300
+@@ -0,0 +1,100 @@
++# VDR dvdselect plugin language source file.
++# Copyright (C) YEAR THE VDR-dvdselect'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-dvdselect package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-dvdselect\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-22 20:28+0300\n"
++"PO-Revision-Date: 2008-04-22 20:28+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-15\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: config.c:50
++msgid "DVD"
++msgstr ""
++
++#: config.c:52
++msgid "dvddevice"
++msgstr "DVD Ger‰t"
++
++#: config.c:55 config.c:60 config.c:65 config.c:70 config.c:75 config.c:80
++msgid " abcdefghijklmnopqrstuvwxyz0123456789-./"
++msgstr ""
++
++#: config.c:57
++msgid "dvdorgdevice"
++msgstr "org. DVD Ger‰t"
++
++#: config.c:62
++msgid "imagedir"
++msgstr "ISO-Verzeichnis"
++
++#: config.c:67
++msgid "DVDOutputDir"
++msgstr "DVD Verzeichnis"
++
++#: config.c:72
++msgid "dvdreadscript"
++msgstr "Einlesen"
++
++#: config.c:77
++msgid "dvdwritescript"
++msgstr "Schreiben"
++
++#: dvdselect.c:18
++msgid "virtual dvd-selector"
++msgstr "virtueller DVD-Wechsler"
++
++#: menu.c:27
++msgid "DVDSelect"
++msgstr "DVD Wechsler"
++
++#: menu.c:97
++msgid "Delete DVD?"
++msgstr "DVD lˆschen?"
++
++#: menu.c:112
++msgid "name"
++msgstr ""
++
++#: menu.c:221
++msgid "DVD-plugin not found!"
++msgstr "DVD-Plugin nicht gefunden!"
++
++#: menu.c:235
++msgid "Burn DVD?"
++msgstr ""
++
++#: menu.c:249
++msgid "burn"
++msgstr ""
++
++#: menu.c:249
++msgid "delete"
++msgstr "lˆschen"
++
++#: menu.c:249
++msgid "reset"
++msgstr "reset"
++
++#: menu.c:249 menu.c:303
++msgid "start"
++msgstr "starten"
++
++#: menu.c:257
++msgid "read dvd"
++msgstr "DVD einlesen"
++
++#: menu.c:259
++msgid "new_dvd"
++msgstr "neue_DVD"
++
++#: menu.c:263
++msgid "dvd-name"
++msgstr "DVD-Name"
+Index: dvdselect-0.8/po/dvdselect.pot
+===================================================================
+--- dvdselect-0.8/po/dvdselect.pot
++++ dvdselect-0.8/po/dvdselect.pot	2008-04-22 20:28:33.000000000 +0300
+@@ -0,0 +1,101 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the PACKAGE package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-22 20:28+0300\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: config.c:50
++msgid "DVD"
++msgstr ""
++
++#: config.c:52
++msgid "dvddevice"
++msgstr ""
++
++#: config.c:55 config.c:60 config.c:65 config.c:70 config.c:75 config.c:80
++msgid " abcdefghijklmnopqrstuvwxyz0123456789-./"
++msgstr ""
++
++#: config.c:57
++msgid "dvdorgdevice"
++msgstr ""
++
++#: config.c:62
++msgid "imagedir"
++msgstr ""
++
++#: config.c:67
++msgid "DVDOutputDir"
++msgstr ""
++
++#: config.c:72
++msgid "dvdreadscript"
++msgstr ""
++
++#: config.c:77
++msgid "dvdwritescript"
++msgstr ""
++
++#: dvdselect.c:18
++msgid "virtual dvd-selector"
++msgstr ""
++
++#: menu.c:27
++msgid "DVDSelect"
++msgstr ""
++
++#: menu.c:97
++msgid "Delete DVD?"
++msgstr ""
++
++#: menu.c:112
++msgid "name"
++msgstr ""
++
++#: menu.c:221
++msgid "DVD-plugin not found!"
++msgstr ""
++
++#: menu.c:235
++msgid "Burn DVD?"
++msgstr ""
++
++#: menu.c:249
++msgid "burn"
++msgstr ""
++
++#: menu.c:249
++msgid "delete"
++msgstr ""
++
++#: menu.c:249
++msgid "reset"
++msgstr ""
++
++#: menu.c:249 menu.c:303
++msgid "start"
++msgstr ""
++
++#: menu.c:257
++msgid "read dvd"
++msgstr ""
++
++#: menu.c:259
++msgid "new_dvd"
++msgstr ""
++
++#: menu.c:263
++msgid "dvd-name"
++msgstr ""
+Index: dvdselect-0.8/po/fr_FR.po
+===================================================================
+--- dvdselect-0.8/po/fr_FR.po
++++ dvdselect-0.8/po/fr_FR.po	2008-04-22 20:28:33.000000000 +0300
+@@ -0,0 +1,100 @@
++# VDR dvdselect plugin language source file.
++# Copyright (C) YEAR THE VDR-dvdselect'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-dvdselect package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-dvdselect\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-22 20:28+0300\n"
++"PO-Revision-Date: 2008-04-22 20:28+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: config.c:50
++msgid "DVD"
++msgstr ""
++
++#: config.c:52
++msgid "dvddevice"
++msgstr "PÈriphÈrique DVD"
++
++#: config.c:55 config.c:60 config.c:65 config.c:70 config.c:75 config.c:80
++msgid " abcdefghijklmnopqrstuvwxyz0123456789-./"
++msgstr ""
++
++#: config.c:57
++msgid "dvdorgdevice"
++msgstr "PÈriphÈrique DVD original"
++
++#: config.c:62
++msgid "imagedir"
++msgstr "RÈpertoire ISO"
++
++#: config.c:67
++msgid "DVDOutputDir"
++msgstr "RÈpertoire de destination DVD"
++
++#: config.c:72
++msgid "dvdreadscript"
++msgstr "Script de lecture DVD"
++
++#: config.c:77
++msgid "dvdwritescript"
++msgstr "Script de Gravure DVD"
++
++#: dvdselect.c:18
++msgid "virtual dvd-selector"
++msgstr "DVD-SÈlecteur virtuel"
++
++#: menu.c:27
++msgid "DVDSelect"
++msgstr "Images DVD"
++
++#: menu.c:97
++msgid "Delete DVD?"
++msgstr "Supprimer le DVD?"
++
++#: menu.c:112
++msgid "name"
++msgstr ""
++
++#: menu.c:221
++msgid "DVD-plugin not found!"
++msgstr "Plugin DVD non trouvÈ"
++
++#: menu.c:235
++msgid "Burn DVD?"
++msgstr ""
++
++#: menu.c:249
++msgid "burn"
++msgstr ""
++
++#: menu.c:249
++msgid "delete"
++msgstr "Supprimer"
++
++#: menu.c:249
++msgid "reset"
++msgstr "Remise ‡ zÈro"
++
++#: menu.c:249 menu.c:303
++msgid "start"
++msgstr "DÈmarrer"
++
++#: menu.c:257
++msgid "read dvd"
++msgstr "Lire le DVD"
++
++#: menu.c:259
++msgid "new_dvd"
++msgstr "Nouveau_DVD"
++
++#: menu.c:263
++msgid "dvd-name"
++msgstr "Nom-DVD"
+Index: dvdselect-0.8/po/ru_RU.po
+===================================================================
+--- dvdselect-0.8/po/ru_RU.po
++++ dvdselect-0.8/po/ru_RU.po	2008-04-22 20:28:33.000000000 +0300
+@@ -0,0 +1,100 @@
++# VDR dvdselect plugin language source file.
++# Copyright (C) YEAR THE VDR-dvdselect'S COPYRIGHT HOLDER
++# This file is distributed under the same license as the VDR-dvdselect package.
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: VDR-dvdselect\n"
++"Report-Msgid-Bugs-To: http://qa.mandriva.com/\n"
++"POT-Creation-Date: 2008-04-22 20:28+0300\n"
++"PO-Revision-Date: 2008-04-22 20:28+0300\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: <vdr@linuxtv.org>\n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-5\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: config.c:50
++msgid "DVD"
++msgstr ""
++
++#: config.c:52
++msgid "dvddevice"
++msgstr "DVD-ø‡ﬁÿ”‡Î“–‚’€Ï"
++
++#: config.c:55 config.c:60 config.c:65 config.c:70 config.c:75 config.c:80
++msgid " abcdefghijklmnopqrstuvwxyz0123456789-./"
++msgstr ""
++
++#: config.c:57
++msgid "dvdorgdevice"
++msgstr "ﬁ‡ÿ”. DVD-ø‡ﬁÿ”‡Î“–‚’€Ï"
++
++#: config.c:62
++msgid "imagedir"
++msgstr "ø–ﬂ⁄– ISO"
++
++#: config.c:67
++msgid "DVDOutputDir"
++msgstr "ø–ﬂ⁄– DVD"
++
++#: config.c:72
++msgid "dvdreadscript"
++msgstr "æ‚⁄‡Î‚Ï"
++
++#: config.c:77
++msgid "dvdwritescript"
++msgstr "∑–ﬂÿ·Ï"
++
++#: dvdselect.c:18
++msgid "virtual dvd-selector"
++msgstr "≤ÿ‡‚„–€Ï›ÎŸ DVD Á’Ÿ›‘÷’‡"
++
++#: menu.c:27
++msgid "DVDSelect"
++msgstr "DVD Á’Ÿ›‘÷’‡"
++
++#: menu.c:97
++msgid "Delete DVD?"
++msgstr "¡‚’‡’‚Ï DVD?"
++
++#: menu.c:112
++msgid "name"
++msgstr ""
++
++#: menu.c:221
++msgid "DVD-plugin not found!"
++msgstr "DVD-‹ﬁ‘„€Ï ›’ ›–Ÿ‘’›!"
++
++#: menu.c:235
++msgid "Burn DVD?"
++msgstr ""
++
++#: menu.c:249
++msgid "burn"
++msgstr ""
++
++#: menu.c:249
++msgid "delete"
++msgstr "¡‚’‡’‚Ï"
++
++#: menu.c:249
++msgid "reset"
++msgstr "reset"
++
++#: menu.c:249 menu.c:303
++msgid "start"
++msgstr "¡‚–‡‚"
++
++#: menu.c:257
++msgid "read dvd"
++msgstr "¡Áÿ‚–‚Ï DVD"
++
++#: menu.c:259
++msgid "new_dvd"
++msgstr "Ωﬁ“ÎŸ DVD"
++
++#: menu.c:263
++msgid "dvd-name"
++msgstr "Ω–◊“–›ÿ’ DVD"

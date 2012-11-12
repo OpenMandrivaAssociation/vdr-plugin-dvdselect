@@ -1,0 +1,22 @@
+diff -urNad vdr-plugin-dvdselect/config.c /tmp/dpep.T12OrJ/vdr-plugin-dvdselect/config.c
+--- vdr-plugin-dvdselect/config.c	2005-03-31 21:50:44.000000000 +0200
++++ /tmp/dpep.T12OrJ/vdr-plugin-dvdselect/config.c	2005-03-31 22:00:10.000000000 +0200
+@@ -20,12 +20,12 @@
+ 
+ cDVDSelectSetup::cDVDSelectSetup(void)
+ {
+-    strcpy(NameDevice, "/dev/dvd");
+-    strcpy(NameOrgDevice, "/dev/scd0");
+-    strcpy(ImageDir, "/video");
+-    strcpy(DVDOutputDir, "/video/dvd");
+-    strcpy(DVDReadScript, "/video/config/plugins/dvdselect_readdvd.sh");
+-    strcpy(DVDWriteScript, "/video/config/plugins/dvdselect_writedvd.sh");
++    strcpy(NameDevice, "/var/cache/vdr/dvd");
++    strcpy(NameOrgDevice, "/dev/dvd");
++    strcpy(ImageDir, "/video");
++    strcpy(DVDOutputDir, "//video/dvd");
++    strcpy(DVDReadScript, "/var/lib/vdr/config/plugins/dvdselect_readdvd.sh");
++    strcpy(DVDWriteScript, "/var/lib/vdr/config/plugins/dvdselect_writedvd.sh");
+ }
+ 
+ bool cDVDSelectSetup::SetupParse(const char *Name, const char *Value)
