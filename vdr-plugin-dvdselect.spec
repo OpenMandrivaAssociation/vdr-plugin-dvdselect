@@ -2,7 +2,7 @@
 %define plugin	dvdselect
 %define name	vdr-plugin-%plugin
 %define version	0.8
-%define rel	17
+%define rel	18
 
 Summary:	VDR plugin: virtual dvd-selector
 Name:		%name
@@ -15,7 +15,6 @@ Source:		http://www.vdr-wiki.de/vdr/vdr-dvdselect/vdr-%plugin-%version.tar.bz2
 Patch0:		dvdselect-default-paths.patch
 Patch1:		dvdselect-0.8-i18n-1.6.patch
 Patch2:		dvdselect-format-string.patch
-BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	vdr-devel >= 1.6.0
 Requires:	vdr-abi = %vdr_abi
 
@@ -35,17 +34,7 @@ rm -f examples/*~
 %vdr_plugin_build
 
 %install
-rm -rf %{buildroot}
 %vdr_plugin_install
-
-%clean
-rm -rf %{buildroot}
-
-%post
-%vdr_plugin_post %plugin
-
-%postun
-%vdr_plugin_postun %plugin
 
 %files -f %plugin.vdr
 %defattr(-,root,root)
