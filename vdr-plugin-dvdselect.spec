@@ -4,7 +4,7 @@
 Summary:	VDR plugin: virtual dvd-selector
 Name:		vdr-plugin-%plugin
 Version:	0.8
-Release:	19
+Release:	20
 Group:		Video
 License:	GPL
 URL:		http://www.vdr-wiki.de/wiki/index.php/Dvdselect-plugin
