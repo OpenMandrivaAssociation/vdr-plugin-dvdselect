@@ -7,7 +7,7 @@ Version:	0.8
 Release:	20
 Group:		Video
 License:	GPL
-URL:		http://www.vdr-wiki.de/wiki/index.php/Dvdselect-plugin
+URL:		https://www.vdr-wiki.de/wiki/index.php/Dvdselect-plugin
 Source:		http://www.vdr-wiki.de/vdr/vdr-dvdselect/vdr-%plugin-%{version}.tar.bz2
 Patch0:		dvdselect-default-paths.patch
 Patch1:		dvdselect-0.8-i18n-1.6.patch
